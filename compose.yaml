@@ -1,0 +1,77 @@
+networks:
+   common:
+      driver: bridge
+volumes:
+   jenkins-data:
+      driver: local
+   jenkins-docker-certs:
+      driver: local
+services:
+# jenkins with dotnet and allure installed 
+   jenkins-dotnet:
+      build: ./jenkins-dotnet
+      networks: 
+         - common
+      ports:
+         - "${JENKINS_WEB_PORT}:8080"
+         - "${JENKINS_MASTER_PORT}:50000"
+      volumes:
+         - jenkins-data:/var/jenkins_home
+         - jenkins-docker-certs:/certs/client
+         - ${REPORTS_PATH}:/var/jenkins_home/allure
+
+# Nginx server
+   nginx:
+      build: ./nginx
+      networks: 
+         - common
+      ports:
+         - "${NGINX_PORT}:80"
+      volumes:
+         - ${REPORTS_PATH}:/usr/share/nginx/html
+         - ./nginx/my_config:/etc/nginx/my_config
+
+# Selenium hub
+   hub:
+      build: ./selenium-hub
+      networks:
+         - common
+      ports:
+         - "4442:4442"
+         - "4443:4443"
+         - "4444:4444"
+
+# Selenium node chrome
+   chrome:
+      build: ./node-chrome
+      shm_size: 2gb
+      depends_on:
+         - hub
+      environment:
+         - SE_EVENT_BUS_HOST=hub
+         - SE_EVENT_BUS_PUBLISH_PORT=4442
+         - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+         - SE_NODE_MAX_SESSIONS=true
+         - SE_NODE_MAX_SESSIONS=${CHROME_MAX_SESSION}
+      ports:
+         - "${CHROME_NOVNC_PORT}:7900"
+      networks:
+         - common
+
+# Selenium node firefox 
+   firefox:
+      build: ./node-firefox
+      shm_size: 2gb
+      depends_on:
+         - hub
+      environment:
+         - SE_EVENT_BUS_HOST=hub
+         - SE_EVENT_BUS_PUBLISH_PORT=4442
+         - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+         - SE_NODE_MAX_SESSIONS=true
+         - SE_NODE_MAX_SESSIONS=${FIREFOX_MAX_SESSION}
+      ports:
+         - "${FIREFOX_NOVNC_PORT}:7900"
+      networks:
+         - common
+      
