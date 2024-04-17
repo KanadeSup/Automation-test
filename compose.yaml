@@ -19,6 +19,8 @@ services:
          - jenkins-data:/var/jenkins_home
          - jenkins-docker-certs:/certs/client
          - ${REPORTS_PATH}:/var/jenkins_home/allure
+      environment:
+         - gridUrl=hub:4444/wd/hub
 
 # Nginx server
    nginx:
