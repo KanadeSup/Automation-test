@@ -49,6 +49,8 @@ services:
       shm_size: 2gb
       depends_on:
          - hub
+      volumes:
+         - jenkins-data:/var/jenkins_home
       environment:
          - SE_EVENT_BUS_HOST=hub
          - SE_EVENT_BUS_PUBLISH_PORT=4442
