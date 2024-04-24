@@ -44,8 +44,28 @@ services:
          - "4444:4444"
 
 # Selenium node chrome
-   chrome:
-      build: ./node-chrome
+   # chrome:
+   #    build: ./node-chrome
+   #    shm_size: 2gb
+   #    depends_on:
+   #       - hub
+   #    volumes:
+   #       - jenkins-data:/var/jenkins_home
+   #    environment:
+   #       - SE_EVENT_BUS_HOST=hub
+   #       - SE_EVENT_BUS_PUBLISH_PORT=4442
+   #       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+   #       - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+   #       - SE_NODE_MAX_SESSIONS=8
+   #       - SE_NODE_SESSION_TIMEOUT=120
+   #    ports:
+   #       - "${CHROME_NOVNC_PORT}:7900"
+   #    networks:
+   #       - common
+
+# chroem debug
+   chromedebug:
+      image: selenium/node-chrome-debug
       shm_size: 2gb
       depends_on:
          - hub
